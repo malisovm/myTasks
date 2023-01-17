@@ -1,17 +1,15 @@
 const express = require('express')
+const path = require('node:path')
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const expressServer = express()
-//expressServer.use(express.static(__dirname + '/app'))
-//expressServer.get('/', function (request, response) {
-//  response.sendFile(__dirname + '/app/index.html')
-//})
+const app = express()
+require('dotenv').config()
+
+app.use(express.static(path.join(__dirname, '..', 'client', 'build')))
 const JSONParser = express.json({ type: 'application/json' })
 
 mongoose.connect(
-  //atlas mongodb
-  'mongodb+srv://user12345:12345@cluster1.mgmwwie.mongodb.net/myTasks_react',
-  //'mongodb://localhost:27017/tasksdb',
+  process.env.DATABASE_URL,
   {
     useUnifiedTopology: true,
     useNewUrlParser: true,
@@ -20,7 +18,7 @@ mongoose.connect(
     if (err) return console.log(err)
     else if (mongoose.connection.readyState === 1)
       console.log('Mongoose connection established')
-    expressServer.listen(process.env.PORT || 3001, function () {
+    app.listen(process.env.PORT || 3001, function () {
       console.log(`The server is up at PORT ${process.env.PORT || 3001}`)
     })
   }
@@ -59,7 +57,7 @@ GlobalVar.findById('bodyColor', (err, found) => {
   }
 })
 
-expressServer.post('/tasks', JSONParser, (request, response) => {
+app.post('/tasks', JSONParser, (request, response) => {
   let newTask = new Task(request.body)
   newTask._id = request.headers.id
   newTask
@@ -73,7 +71,7 @@ expressServer.post('/tasks', JSONParser, (request, response) => {
     })
 })
 
-expressServer.post('/tasktypes', JSONParser, (request, response) => {
+app.post('/tasktypes', JSONParser, (request, response) => {
   let newTaskType = new TaskType(request.body)
   newTaskType._id = request.headers.id
   newTaskType
@@ -87,7 +85,7 @@ expressServer.post('/tasktypes', JSONParser, (request, response) => {
     })
 })
 
-expressServer.put('/tasks', JSONParser, (request, response) => {
+app.put('/tasks', JSONParser, (request, response) => {
   Task.findByIdAndUpdate(request.headers.id.replace(/['"]+/g, ''), {
     column: request.body.column,
     row: request.body.row,
@@ -103,7 +101,7 @@ expressServer.put('/tasks', JSONParser, (request, response) => {
     })
 })
 
-expressServer.put('/tasktypes', JSONParser, (request, response) => {
+app.put('/tasktypes', JSONParser, (request, response) => {
   TaskType.findByIdAndUpdate(request.headers.id.replace(/['"]+/g, ''), {
     column: request.body.column,
     text: request.body.text,
@@ -117,7 +115,7 @@ expressServer.put('/tasktypes', JSONParser, (request, response) => {
     })
 })
 
-expressServer.put('/globalVars', JSONParser, (request, response) => {
+app.put('/globalVars', JSONParser, (request, response) => {
   GlobalVar.findByIdAndUpdate(request.headers.id.replace(/['"]+/g, ''), {
     value: request.body.value,
   })
@@ -130,7 +128,7 @@ expressServer.put('/globalVars', JSONParser, (request, response) => {
     })
 })
 
-expressServer.delete('/tasks', (request, response) => {
+app.delete('/tasks', (request, response) => {
   Task.findByIdAndDelete(request.headers.id.replace(/['"]+/g, ''))
     .then(() => {
       console.log(`Deleted task "${request.headers.id}"`)
@@ -141,7 +139,7 @@ expressServer.delete('/tasks', (request, response) => {
     })
 })
 
-expressServer.delete('/tasktypes', (request, response) => {
+app.delete('/tasktypes', (request, response) => {
   TaskType.findByIdAndDelete(request.headers.id.replace(/['"]+/g, ''))
     .then(() => {
       console.log(`Deleted task type "${request.headers.id}"`)
@@ -152,21 +150,21 @@ expressServer.delete('/tasktypes', (request, response) => {
     })
 })
 
-expressServer.get('/tasks', (request, response) => {
+app.get('/tasks', (request, response) => {
   Task.find({}, function (err, tasks) {
     if (err) console.log(err)
     response.send(tasks)
   })
 })
 
-expressServer.get('/tasktypes', (request, response) => {
+app.get('/tasktypes', (request, response) => {
   TaskType.find({}, function (err, taskTypes) {
     if (err) console.log(err)
     response.send(taskTypes)
   })
 })
 
-expressServer.get('/globalVars', (request, response) => {
+app.get('/globalVars', (request, response) => {
   GlobalVar.findById(
     request.headers.id.replace(/['"]+/g, ''),
     function (err, foundVar) {
@@ -174,4 +172,9 @@ expressServer.get('/globalVars', (request, response) => {
       response.send(foundVar)
     }
   )
+})
+
+// this should be after all other endpoints, do not move
+app.get('*', (_, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'))
 })

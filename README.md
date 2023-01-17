@@ -1,6 +1,7 @@
 # Simple Kanban board
 
-This is a minimalistic Kanban-style task manager I wrote to study React. Supports creating tasks and columns, moving tasks between columns, changing their color as well as the bg-color of the app. All changes are preserved in a database (within a single "user").
+This app was written as a study project to learn JS, React and MongoDB. It is a simplified replica of the Trello interface (a minimalistic Kanban-style task manager).
+Supports creating tasks and columns, dragging'n'dropping tasks between columns, changing their color as well as the background color of the app.
 
 ### Stack
 
@@ -13,8 +14,4 @@ This is a minimalistic Kanban-style task manager I wrote to study React. Support
 
 ### Live version
 
-Live version [here](https://mytasks-react.cyclic.app/).
-
-### Building
-
-The [/dev](https://github.com/malisovm/mytasks_react) branch can be launched with `npm run start` + `cd backend && node server.js`. If you want to run build, remove the proxy line from package.json and uncomment lines 5-8 in server.js. The compiled version is in the [/deploy](https://github.com/malisovm/mytasks_react/tree/deploy) branch.
+Live version [HERE](https://mytasks-react.cyclic.app).
